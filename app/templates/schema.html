@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Database Schema | AI Database & Code Generator{% endblock %}
+{% block content %}
+<header class="topbar">
+  <button class="menu-button" id="menu-button" aria-label="Open menu" aria-expanded="false">☰</button>
+  <div>
+    <p class="eyebrow">DATABASE</p>
+    <h1>Live Schema</h1>
+  </div>
+  <button class="secondary-button small" id="refresh-schema">Refresh Schema</button>
+</header>
+
+{% if schema_error %}
+<div class="error-panel" style="margin-bottom:18px"><span>!</span><div><strong>Could not load schema</strong><p>{{ schema_error }}</p></div></div>
+{% endif %}
+<section class="glass-card">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">SCHEMA</p>
+      <h2>{{ schema.tables | length }} tables discovered</h2>
+    </div>
+  </div>
+  <div class="schema-grid">
+    {% for table_name, table in schema.tables.items() %}
+    <article class="schema-table">
+      <div class="schema-header">
+        <strong>{{ table_name }}</strong>
+        <span class="count">{{ table.columns | length }} columns · {{ table.row_count }} rows</span>
+      </div>
+      <ul class="schema-columns">
+        {% for col in table.columns %}
+        <li>
+          <span class="col-name">
+            {% if col.name in table.primary_keys %}🔑{% endif %}
+            {{ col.name }}
+          </span>
+          <span class="col-type">{{ col.type }}</span>
+          {% for fk in table.foreign_keys %}
+          {% if fk.column == col.name %}
+          <span class="col-fk">→ {{ fk.references_table }}</span>
+          {% endif %}
+          {% endfor %}
+        </li>
+        {% endfor %}
+      </ul>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('refresh-schema')?.addEventListener('click', async () => {
+  const btn = document.getElementById('refresh-schema');
+  btn.disabled = true;
+  btn.textContent = 'Refreshing…';
+  try {
+    const res = await fetch('/database/schema/refresh');
+    const data = await res.json();
+    if (res.ok) {
+      window.location.reload();
+    } else {
+      alert(data.detail || 'Could not refresh schema.');
+    }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Refresh Schema';
+  }
+});
+</script>
+{% endblock %}

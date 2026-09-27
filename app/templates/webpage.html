@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Screenshot to HTML/CSS | AI Database & Code Generator{% endblock %}
+{% block content %}
+<header class="topbar">
+  <button class="menu-button" id="menu-button" aria-label="Open menu" aria-expanded="false">☰</button>
+  <div>
+    <p class="eyebrow">MODULE 2</p>
+    <h1>Screenshot to HTML/CSS</h1>
+  </div>
+</header>
+
+<section class="glass-card upload-card">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">UPLOAD SCREENSHOT</p>
+      <h2>Drop a webpage screenshot</h2>
+    </div>
+    <span class="limit">Max 15 MB · PNG/JPG</span>
+  </div>
+  <form id="upload-form">
+    <input id="file-input" name="file" type="file" accept="image/png,image/jpeg,image/jpg" hidden>
+    <label for="file-input" class="drop-zone" id="drop-zone" tabindex="0" role="button" aria-label="Upload a screenshot">
+      <span class="upload-icon">↑</span>
+      <strong>Drop your screenshot here</strong>
+      <span>or click to browse</span>
+      <small>PNG · JPG · JPEG</small>
+    </label>
+    <p class="upload-status" id="upload-status" hidden></p>
+  </form>
+  <div class="image-preview-wrap" id="image-preview-wrap" hidden>
+    <img id="image-preview" alt="Uploaded screenshot preview">
+    <button type="button" class="remove-image" id="remove-image">Remove</button>
+  </div>
+  <button type="button" class="primary-button" id="generate-button" disabled>
+    <span class="btn-text">Generate HTML & CSS</span>
+    <span class="btn-spinner" hidden></span>
+  </button>
+</section>
+
+<section class="glass-card result-card" id="result-card" hidden>
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">AI RESULT</p>
+      <h2>Generated Webpage</h2>
+    </div>
+    <div class="result-actions">
+      <button type="button" class="secondary-button small" id="copy-html">Copy HTML</button>
+      <button type="button" class="secondary-button small" id="copy-css">Copy CSS</button>
+      <button type="button" class="secondary-button small" id="download-zip">Download ZIP</button>
+    </div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab active" data-tab="preview" role="tab" aria-selected="true">Live Preview</button>
+    <button class="tab" data-tab="html" role="tab" aria-selected="false">HTML Code</button>
+    <button class="tab" data-tab="css" role="tab" aria-selected="false">CSS Code</button>
+  </div>
+
+  <div class="ai-loading" id="ai-loading" hidden aria-live="polite" aria-busy="true">
+    <div class="loading-orb"><span></span><span></span><span></span></div>
+    <div class="loading-copy">
+      <strong>Analyzing screenshot</strong>
+      <p id="loading-subtitle">Identifying layout, colors and typography…</p>
+    </div>
+    <div class="loading-skeleton"><span></span><span></span><span></span><span></span></div>
+  </div>
+
+  <div class="tab-panels">
+    <div class="tab-panel active" id="panel-preview" role="tabpanel">
+      <div class="preview-toolbar">
+        <div class="seg-group" role="group" aria-label="Preview viewport width">
+          <button type="button" class="seg-btn active" data-width="100%">Desktop</button>
+          <button type="button" class="seg-btn" data-width="768px">Tablet</button>
+          <button type="button" class="seg-btn" data-width="390px">Mobile</button>
+        </div>
+      </div>
+      <div class="preview-frame">
+        <iframe id="preview-iframe" title="Generated webpage preview" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+    </div>
+    <div class="tab-panel" id="panel-html" role="tabpanel" hidden>
+      <textarea class="code-editor" id="html-editor" readonly></textarea>
+    </div>
+    <div class="tab-panel" id="panel-css" role="tabpanel" hidden>
+      <textarea class="code-editor" id="css-editor" readonly></textarea>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
+<script src="{{ url_for('static', path='/js/screenshot.js') }}?v=5" defer></script>
+{% endblock %}

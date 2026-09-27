@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | AI Database & Code Generator{% endblock %}
+{% block content %}
+<header class="topbar">
+  <button class="menu-button" id="menu-button" aria-label="Open menu" aria-expanded="false">☰</button>
+  <div>
+    <p class="eyebrow">AI WORKSPACE</p>
+    <h1>{{ app_name }}</h1>
+  </div>
+  <span class="privacy-badge">FastAPI + Groq</span>
+</header>
+
+<section class="hero-grid">
+  <article class="glass-card welcome-card">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">WELCOME</p>
+        <h2>Two AI tools. One dashboard.</h2>
+      </div>
+    </div>
+    <p class="hero-text">Turn plain English into live SQL queries, or upload a webpage screenshot and get responsive HTML/CSS back.</p>
+    <div class="hero-actions">
+      <a href="/database" class="primary-button">Ask the Database</a>
+      <a href="/webpage" class="secondary-button">Generate Webpage</a>
+    </div>
+  </article>
+
+  <article class="glass-card status-card">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">SYSTEM STATUS</p>
+        <h2>Services</h2>
+      </div>
+    </div>
+    <div class="status-list">
+      <div class="status-item">
+        <span class="status-dot {% if config_status.groq %}ok{% else %}bad{% endif %}"></span>
+        <div>
+          <strong>Groq API</strong>
+          <span>{{ 'Configured' if config_status.groq else 'Missing API key' }}</span>
+        </div>
+      </div>
+      <div class="status-item">
+        <span class="status-dot {% if config_status.database %}ok{% else %}bad{% endif %}"></span>
+        <div>
+          <strong>SQLite Database</strong>
+          <span>{{ 'Configured' if config_status.database else 'Missing URL' }}</span>
+        </div>
+      </div>
+    </div>
+  </article>
+</section>
+
+<section class="actions-section">
+  <div class="section-heading">
+    <div><p class="eyebrow">MODULES</p><h2>Choose a tool</h2></div>
+  </div>
+  <div class="action-grid">
+    <a href="/database" class="action-card">
+      <span class="action-number">01</span>
+      <strong>Natural Language SQL</strong>
+      <small>Ask questions in English and get safe SELECT results</small>
+    </a>
+    <a href="/webpage" class="action-card">
+      <span class="action-number">02</span>
+      <strong>Screenshot to HTML/CSS</strong>
+      <small>Upload a webpage screenshot and recreate the layout</small>
+    </a>
+    <a href="/schema" class="action-card">
+      <span class="action-number">03</span>
+      <strong>Database Schema</strong>
+      <small>Browse live tables, columns and relationships</small>
+    </a>
+    <a href="/history" class="action-card">
+      <span class="action-number">04</span>
+      <strong>Query History</strong>
+      <small>Search, filter and export past queries</small>
+    </a>
+  </div>
+</section>
+{% endblock %}

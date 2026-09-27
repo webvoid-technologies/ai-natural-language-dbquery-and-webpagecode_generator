@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Natural Language SQL | AI Database & Code Generator{% endblock %}
+{% block content %}
+<header class="topbar">
+  <button class="menu-button" id="menu-button" aria-label="Open menu" aria-expanded="false">☰</button>
+  <div>
+    <p class="eyebrow">MODULE 1</p>
+    <h1>Natural Language to SQL</h1>
+  </div>
+  <a href="/schema" class="secondary-button small">View Schema</a>
+</header>
+
+<section class="glass-card query-card">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">ASK THE DATABASE</p>
+      <h2>Type your question in plain English</h2>
+    </div>
+  </div>
+  <form id="query-form" class="query-form">
+    <input id="question-input" type="text" maxlength="1000" placeholder="Example: Show students with attendance below 75%" required autocomplete="off">
+    <button type="submit" class="primary-button" id="query-button">
+      <span class="btn-text">Generate & Execute</span>
+      <span class="btn-spinner" hidden></span>
+    </button>
+  </form>
+  <p class="kbd-hint">Tip: press <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> (or <span class="kbd">⌘</span> + <span class="kbd">Enter</span>) to run</p>
+  <div class="examples">
+    <p class="examples-label">Try an example:</p>
+    <div class="example-chips" id="example-chips">
+      {% for example in examples[:8] %}
+      <button type="button" class="chip" data-query="{{ example }}">{{ example }}</button>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="glass-card result-card" id="result-card" hidden>
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">AI RESULT</p>
+      <h2>Generated SQL & Results</h2>
+    </div>
+    <div class="result-actions" id="result-actions" hidden>
+      <button type="button" class="secondary-button small" id="edit-sql">Edit SQL</button>
+      <button type="button" class="secondary-button small" id="copy-sql">Copy SQL</button>
+      <button type="button" class="secondary-button small" id="download-csv">Download CSV</button>
+    </div>
+  </div>
+
+  <div class="result-meta" id="result-meta" hidden>
+    <span class="badge" id="validation-badge">Valid</span>
+    <span class="meta-item" id="retry-meta">Retries: 0</span>
+    <span class="meta-item" id="time-meta">0.0s</span>
+    <span class="meta-item" id="rows-meta">0 rows</span>
+  </div>
+
+  <div class="sql-box" id="sql-box" hidden>
+    <pre><code id="sql-code"></code></pre>
+  </div>
+
+  <div class="sql-editor-wrap" id="sql-editor-wrap" hidden>
+    <textarea class="sql-editor" id="sql-editor" spellcheck="false" aria-label="Edit SQL query"></textarea>
+    <div class="sql-editor-actions">
+      <button type="button" class="primary-button small" id="run-edited-sql">Run edited SQL</button>
+      <button type="button" class="ghost-button" id="cancel-edit">Cancel</button>
+    </div>
+  </div>
+
+  <div class="ai-loading" id="ai-loading" hidden aria-live="polite" aria-busy="true">
+    <div class="loading-orb"><span></span><span></span><span></span></div>
+    <div class="loading-copy">
+      <strong id="loading-title">Generating SQL</strong>
+      <p id="loading-subtitle">Reading the live schema…</p>
+    </div>
+    <div class="loading-skeleton"><span></span><span></span><span></span><span></span></div>
+  </div>
+
+  <div id="result-content" aria-live="polite"></div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', path='/js/database.js') }}?v=5" defer></script>
+{% endblock %}

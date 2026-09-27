@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Query History | AI Database & Code Generator{% endblock %}
+{% block content %}
+<header class="topbar">
+  <button class="menu-button" id="menu-button" aria-label="Open menu" aria-expanded="false">☰</button>
+  <div>
+    <p class="eyebrow">HISTORY</p>
+    <h1>Query History</h1>
+  </div>
+  <button class="secondary-button small" id="clear-history">Clear History</button>
+</header>
+
+<section class="glass-card">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">PAST QUERIES</p>
+      <h2>Search and filter previous results</h2>
+    </div>
+  </div>
+
+  <div class="history-filters">
+    <input type="text" id="search-input" placeholder="Search questions…" autocomplete="off">
+    <select id="status-filter">
+      <option value="">All statuses</option>
+      <option value="success">Success</option>
+      <option value="error">Error</option>
+    </select>
+  </div>
+
+  <div class="history-list" id="history-list">
+    {% for record in records %}
+    <article class="history-item" data-status="{{ record.status }}">
+      <div class="history-main">
+        <p class="history-question">{{ record.user_query }}</p>
+        <div class="history-tags">
+          <span class="badge {{ 'success' if record.status == 'success' else 'error' }}">{{ record.status }}</span>
+          <span class="meta">Retries: {{ record.retry_count or 0 }}</span>
+          <span class="meta">{{ "%.4f"|format(record.execution_time) if record.execution_time else '-' }}s</span>
+          <span class="meta">{{ record.row_count or 0 }} rows</span>
+          <span class="meta" data-ts="{{ record.timestamp }}">{{ record.timestamp }}</span>
+          {% if record.user_query %}
+          <a class="secondary-button small run-again" href="/database?q={{ record.user_query | urlencode }}">Run again</a>
+          {% endif %}
+        </div>
+      </div>
+      {% if record.status == 'success' and record.generated_sql %}
+      <details class="history-sql">
+        <summary>Show SQL</summary>
+        <pre><code>{{ record.generated_sql }}</code></pre>
+      </details>
+      {% endif %}
+      {% if record.error %}
+      <p class="history-error">{{ record.error }}</p>
+      {% endif %}
+    </article>
+    {% else %}
+    <div class="empty-state">
+      <p>No queries yet. Ask the database on the <a href="/database">Natural Language SQL</a> page.</p>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+const searchInput = document.getElementById('search-input');
+const statusFilter = document.getElementById('status-filter');
+const items = document.querySelectorAll('.history-item');
+
+function filter() {
+  const term = searchInput.value.toLowerCase();
+  const status = statusFilter.value;
+  items.forEach(item => {
+    const text = item.textContent.toLowerCase();
+    const okText = text.includes(term);
+    const okStatus = !status || item.dataset.status === status;
+    item.hidden = !(okText && okStatus);
+  });
+}
+searchInput?.addEventListener('input', filter);
+statusFilter?.addEventListener('change', filter);
+
+// Render ISO timestamps as readable local times.
+document.querySelectorAll('[data-ts]').forEach((el) => {
+  const d = new Date(el.dataset.ts);
+  if (!isNaN(d)) el.textContent = d.toLocaleString();
+});
+
+document.getElementById('clear-history')?.addEventListener('click', async () => {
+  if (!confirm('Clear all history?')) return;
+  const res = await fetch('/api/history', { method: 'DELETE' });
+  if (res.ok) window.location.reload();
+});
+</script>
+{% endblock %}
